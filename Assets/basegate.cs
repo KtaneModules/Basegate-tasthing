@@ -274,13 +274,8 @@ public class basegate : MonoBehaviour
 
     private void PressDial(KMSelectable dial)
     {
-        if (moduleSolved)
-            return;
-        SetDial(Array.IndexOf(dials, dial), (dialPositions[Array.IndexOf(dials, dial)] + 5) % 4);
-    }
-
-    private void SetDial(int ix, int direction)
-    {
+        var ix = Array.IndexOf(dials, dial);
+        var direction = (dialPositions[Array.IndexOf(dials, dial)] + 5) % 4;
         if (dialMovements[ix] != null)
         {
             StopCoroutine(dialMovements[ix]);
@@ -467,7 +462,37 @@ public class basegate : MonoBehaviour
 
     private IEnumerator TwitchHandleForcedSolve()
     {
-        yield return null;
+        for (int i = 0; i < 4; i++)
+        {
+            if (correctSwitchStates[i] != switchSockets[i])
+            {
+                yield return new WaitForSeconds(.1f);
+                switches[i].OnInteract();
+            }
+        }
+        for (int i = 0; i < 9; i++)
+        {
+            if (!hatchesOpened[i] && correctHatchPositions[i])
+            {
+                yield return new WaitForSeconds(.1f);
+                hatchCovers[i].OnInteract();
+            }
+        }
+        var ix = 0;
+        for (int i = 0; i < 9; i++)
+        {
+            if (hatchesOpened[i])
+            {
+                while (dialPositions[i] != correctDialPositions[ix])
+                {
+                    yield return new WaitForSeconds(.1f);
+                    dials[i].OnInteract();
+                }
+                ix++;
+            }
+        }
+        yield return new WaitForSeconds(.1f);
+        submitButton.OnInteract();
     }
 
     private static int TPGetCardinalDirection(string str)

@@ -14,10 +14,9 @@ MonoBehaviour:
   id: basegate
   title: Basegate
   author: TasThing
-  description: 'Based and gatepilled.
-
-
-    Module idea by Vincology, implementation by TasThing.'
-  version: 1.0
+  description: "Based and gatepilled.\r\n\r\nModule idea by Vincology, implementation
+    by TasThing.\r\n\r\n[url=https://ktane.timwi.de/HTML/Basegate.html]Manual HTML[/url]\r\n[url=https://ktane.timwi.de/PDF/Basegate.pdf]Manual
+    PDF[/url]"
+  version: 1.0.1
   outputFolder: build
   previewImage: {fileID: 2800000, guid: a22c54bbb9d815947bdc536ea8f9d149, type: 3}
