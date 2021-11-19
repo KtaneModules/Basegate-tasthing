@@ -19,6 +19,7 @@ public class basegate : MonoBehaviour
     public KMSelectable[] switches;
     private Renderer[] switchRenders;
     private Renderer[] switchSockets;
+    public TextMesh[] colorblindTexts;
     private Transform[] dialTransforms;
     private GameObject[] hatchHighlights;
     public Color[] switchColors;
@@ -57,6 +58,8 @@ public class basegate : MonoBehaviour
         hatchHighlights = hatchCovers.Select(x => x.transform.Find("hl").gameObject).ToArray();
         colorTable = "RYWGMCBYGCRBWMWCBMGYRGRMYWBCMBGWCRYCWYBRMGBMRCYGW".Select(x => "RGBYCMW".IndexOf(x)).ToArray();
 
+        foreach (GameObject colorblindText in colorblindTexts.Select(t => t.gameObject))
+            colorblindText.SetActive(GetComponent<KMColorblindMode>().ColorblindModeActive);
         submitButton.OnInteract += delegate () { PressSubmitButton(); return false; };
         foreach (KMSelectable bigSwitch in switches)
             bigSwitch.OnInteract += delegate () { FlipSwitch(bigSwitch); return false; };
@@ -76,6 +79,7 @@ public class basegate : MonoBehaviour
             socketColorIndices[i] = rnd.Range(0, 7);
             switchRenders[i].material.color = switchColors[switchColorIndices[i]];
             switchSockets[i].material.color = socketColors[socketColorIndices[i]];
+            colorblindTexts[i].text = "RGBYCMW"[switchColorIndices[i]].ToString() + "RGBYCMW"[socketColorIndices[i]];
             switchStates[i] = rnd.Range(0, 2) == 0;
             switches[i].transform.localEulerAngles = new Vector3(switchStates[i] ? 55f : -55f, i % 2 == 0 ? 90f : 0f, 0f);
         }
@@ -220,7 +224,7 @@ public class basegate : MonoBehaviour
         hatchIndices = correctHatchPositions.Select((b, i) => new { index = i, value = b }).Where(o => o.value).Select(obj => obj.index).ToArray();
         Debug.LogFormat("[Basegate #{0}] The correct hatch positions are {1}.", moduleId, hatchIndices.Select(x => hatchDirections[x]).Join(", "));
 
-        var quaternaryNumber = "000;001;002;003;010;011;012;013;020;021;022;023;030;031;032;033;100;101;102;103;110;111;112;113;120;121;122;123;130;131;132;133;200;201;202;203;210;211;212;213;220;221;222;223;230;231;232;233;300;301;302;303;310;311;312;313;320;321;322;323;330;331;332;333".Split(';')[calculatedNumber % 63];
+        var quaternaryNumber = "000;001;002;003;010;011;012;013;020;021;022;023;030;031;032;033;100;101;102;103;110;111;112;113;120;121;122;123;130;131;132;133;200;201;202;203;210;211;212;213;220;221;222;223;230;231;232;233;300;301;302;303;310;311;312;313;320;321;322;323;330;331;332;333".Split(';')[calculatedNumber % 64];
         Debug.LogFormat("[Basegate #{0}] The number to sbumit in quaternary is {1}.", moduleId, quaternaryNumber);
         var isReadingOrder = bomb.GetBatteryCount() != bomb.GetIndicators().Count() && bomb.GetIndicators().Count() != bomb.GetPortCount() && bomb.GetPortCount() != bomb.GetBatteryCount();
         Debug.LogFormat("[Basegate #{0}] The dials go in {1}reading order.", moduleId, isReadingOrder ? "" : "reverse ");
@@ -249,7 +253,7 @@ public class basegate : MonoBehaviour
             StopCoroutine(switchMovements[ix]);
             switchMovements[ix] = null;
         }
-        switchMovements[ix] = StartCoroutine(MoveSwitch(bigSwitch.transform, switchStates[ix] ? -55f : 55f, switchStates[ix] ? 55f : -55f, ix % 2 == 0 ? 90f : 0f));
+        switchMovements[ix] = StartCoroutine(MoveSwitch(bigSwitch.transform, bigSwitch.transform.localEulerAngles.x, switchStates[ix] ? 55f : -55f, ix % 2 == 0 ? 90f : 0f));
     }
 
     private void PressHatch(KMSelectable hatch)
@@ -323,7 +327,8 @@ public class basegate : MonoBehaviour
         var duration = .3f;
         while (elapsed < duration)
         {
-            bigSwitch.localEulerAngles = new Vector3(Easing.OutSine(elapsed, start, end, duration), y, 0f);
+            //bigSwitch.localEulerAngles = new Vector3(Easing.OutSine(elapsed, start, end, duration), y, 0f);
+            bigSwitch.localRotation = Quaternion.Slerp(Quaternion.Euler(start, y, 0f), Quaternion.Euler(end, y, 0f), elapsed / duration);
             yield return null;
             elapsed += Time.deltaTime;
         }
