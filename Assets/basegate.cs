@@ -342,7 +342,7 @@ public class basegate : MonoBehaviour
         var startPos = hatch.localPosition.z;
         var endPos = startPos + .00971f;
         var xPos = hatch.localPosition.x;
-        audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.WireSequenceMechanism, hatch);
+        audio.PlaySoundAtTransform("hatch open", hatch);
         while (elapsed < duration)
         {
             hatch.localScale = new Vector3(.025f, .00095f, Mathf.Lerp(.025f, .0001f, elapsed / duration));
