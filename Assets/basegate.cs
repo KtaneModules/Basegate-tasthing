@@ -469,7 +469,7 @@ public class basegate : MonoBehaviour
     {
         for (int i = 0; i < 4; i++)
         {
-            if (correctSwitchStates[i] != switchSockets[i])
+            if (correctSwitchStates[i] != switchStates[i])
             {
                 yield return new WaitForSeconds(.1f);
                 switches[i].OnInteract();
